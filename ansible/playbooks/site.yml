@@ -1,0 +1,41 @@
+---
+- name: Setup K3s Control Plane
+  hosts: masters
+  become: yes
+  tasks:
+    - name: Download and install K3s server
+      shell: curl -sfL https://get.k3s.io | sh -s - server --tls-san 127.0.0.1
+      args:
+        creates: /etc/rancher/k3s/k3s.yaml
+
+    - name: Wait for K3s node token to be generated
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+        timeout: 60
+
+    - name: Fetch node token
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: node_token_b64
+
+    - name: Distribute node token to worker nodes
+      set_fact:
+        k3s_token: "{{ node_token_b64['content'] | b64decode | trim }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['workers'] }}"
+
+    - name: Fetch cluster kubeconfig to your local machine
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ playbook_dir }}/../../kubeconfig"
+        flat: yes
+
+- name: Setup K3s Workers
+  hosts: workers
+  become: yes
+  tasks:
+    - name: Download and install K3s agent
+      shell: curl -sfL https://get.k3s.io | K3S_URL=https://172.20.0.10:6443 K3S_TOKEN={{ k3s_token }} sh -
+      args:
+        creates: /etc/systemd/system/k3s-agent.service

@@ -1,0 +1,63 @@
+services:
+  control-plane:
+    build: 
+      context: .
+    container_name: k8s-control-plane
+    hostname: control-plane
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /lib/modules:/lib/modules:ro
+    tmpfs:
+      - /run
+      - /run/lock
+    ports:
+      - "6443:6443" # K8s API Server
+      - "80:80"     # Ingress HTTP
+      - "443:443"   # Ingress HTTPS
+    networks:
+      k8s-net:
+        ipv4_address: 172.20.0.10
+
+  worker-01:
+    build: 
+      context: .
+    container_name: k8s-worker-01
+    hostname: worker-01
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /lib/modules:/lib/modules:ro
+    tmpfs:
+      - /run
+      - /run/lock
+    networks:
+      k8s-net:
+        ipv4_address: 172.20.0.11
+    depends_on:
+      - control-plane
+
+  worker-02:
+    build: 
+      context: .
+    container_name: k8s-worker-02
+    hostname: worker-02
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /lib/modules:/lib/modules:ro
+    tmpfs:
+      - /run
+      - /run/lock
+    networks:
+      k8s-net:
+        ipv4_address: 172.20.0.12
+    depends_on:
+      - control-plane
+
+networks:
+  k8s-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

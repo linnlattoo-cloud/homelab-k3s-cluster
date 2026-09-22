@@ -1,0 +1,12 @@
+# Ignore generated kubeconfig
+kubeconfig
+
+# Ignore Ansible retry files
+*.retry
+.ansible/
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore Docker system files
+.docker/
