@@ -10,13 +10,6 @@ This simulates a bare-metal multi-node environment using Docker containers runni
 * **Configuration Management:** Ansible
 * **Kubernetes Distribution:** K3s
 
-## Skills Demonstrated
-
-* **Infrastructure as Code (IaC):** Automating environment creation with Docker Compose.
-* **Configuration Management:** Writing idempotent Ansible playbooks to provision servers.
-* **Kubernetes Architecture:** Understanding the bootstrapping process, CNI, and Ingress (Traefik) configuration from scratch, rather than relying on black-box tools.
-* **DevOps Best Practices:** Utilizing defensive scripting (pre/post-flight checks) and creating a frictionless developer experience.
-
 ## Prerequisites
 
 * Docker
